@@ -7,13 +7,14 @@
 //
 
 import UIKit
+import SafariServices
 
 class DetailViewController: UIViewController {
 
-    @IBOutlet weak var detailDescriptionLabel: UILabel!
+    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var openButton: UIButton!
 
-
-    var detailItem: AnyObject? {
+    var repository: Repository? {
         didSet {
             // Update the view.
             self.configureView()
@@ -22,10 +23,9 @@ class DetailViewController: UIViewController {
 
     func configureView() {
         // Update the user interface for the detail item.
-        if let detail = self.detailItem {
-            if let label = self.detailDescriptionLabel {
-                label.text = detail.description
-            }
+        if let repository = self.repository {
+            self.nameLabel?.text = repository.fullName
+            self.openButton?.setTitle(repository.HTMLURL.absoluteString, forState: .Normal)
         }
     }
 
@@ -35,11 +35,18 @@ class DetailViewController: UIViewController {
         self.configureView()
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    @IBAction func onURLClick(sender: AnyObject) {
+        if let repository = self.repository {
+            let safariView = SFSafariViewController(URL: repository.HTMLURL)
+            safariView.delegate = self
+            presentViewController(safariView, animated: true, completion: nil)
+        }
     }
+}
 
-
+extension DetailViewController : SFSafariViewControllerDelegate {
+    func safariViewControllerDidFinish(controller: SFSafariViewController) {
+        controller.dismissViewControllerAnimated(true, completion: nil)
+    }
 }
 
